@@ -1,8 +1,8 @@
 # Joystick — Flutter Hot Reload 컨트롤 패널
 
 macOS 데스크톱에 뜨는 미니 윈도우. 아무 Flutter 프로젝트나 골라 iOS 시뮬레이터에서
-실행하고, Hot Reload / Hot Restart 를 버튼 하나로 제어한다. 브라우저 DevTools 가
-ws 끊김으로 답답한 사람을 위한 PTY 기반 대체 컨트롤러.
+실행하고, Hot Reload / Hot Restart 를 버튼 하나로 제어한다. VSCode 같은 무거운 IDE 를
+켜지 않고 Hot Reload 만 빠르게 누르려고 만든 가벼운 도구다.
 
 **이 파일은 설치를 돕는 에이전트(Claude Code)용 지침이다. 아래 순서를 그대로 따르면 된다.**
 

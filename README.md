@@ -1,12 +1,22 @@
 # Joystick 🕹️
 
-Flutter 의 **Hot Reload / Hot Restart 를 버튼으로 누르는** macOS 미니 컨트롤 패널.
-브라우저 DevTools 의 WebSocket 끊김에 지친 사람을 위한 PTY 기반 대체품.
+Flutter 개발할 때 **시뮬레이터 켜고 Hot Reload 하는 것**만 하는 macOS 미니 패널.
+VSCode·Xcode 같은 무거운 거 안 켜고, 작은 창 하나로 끝낸다.
 
 ![Joystick](docs/joystick.png)
 
-한 줄짜리 슬림 윈도우, 항상 위에 떠 있음. 버튼은 좌→우:
+한 줄짜리 슬림 창, 항상 맨 위에 떠 있음. 버튼은 좌→우:
 📦 프로젝트 · 📱 시뮬레이터 · ▶ Run · ■ Stop · ⚡ Hot Reload · ↻ Hot Restart · ☰ 로그 · ✕ 종료
+
+## 왜 만들었나
+
+코드 조금 고치고 Hot Reload 한 번 하려고 매번 VSCode 같은 IDE 를 켜고, 시뮬레이터
+띄우려고 Xcode·Simulator 를 또 켜고… 매번 이게 귀찮았다. 정작 자주 누르는 버튼은
+몇 개뿐인데.
+
+그 버튼들만 쏙 빼서 작은 창에 늘 띄워둔 게 Joystick. **시뮬레이터 켜기(📱)도, 앱
+실행(▶)도, Hot Reload(⚡)도 전부 이 창 하나에서.** IDE 도 Xcode 도 터미널도 따로
+켤 필요 없다.
 
 ## 설치
 
@@ -29,32 +39,28 @@ open Joystick.app
 
 - macOS 13+
 - Xcode Command Line Tools — `xcode-select --install`
-- Flutter — **경로는 앱이 알아서 찾는다** (로그인 셸 PATH + 흔한 경로 + fvm)
+- Flutter — **경로는 앱이 알아서 찾는다** (설치만 돼 있으면 됨)
 
 ## 쓰는 법
 
 1. 📦 프로젝트 고르기 (켜면 가장 최근 만진 프로젝트가 자동 선택돼 있음)
-2. 📱 iOS 시뮬레이터 고르기 → 부팅됨
+2. 📱 시뮬레이터 고르기 → **알아서 켜진다** (Simulator 앱 따로 안 켜도 됨)
 3. ▶ Run → 빌드 후 실행
 4. 코드 고치고 ⚡ Hot Reload (또는 ↻ Hot Restart)
 
-📱 를 누르면 설치된 iOS 시뮬레이터가 런타임별로 묶여 나온다 (부팅된 기기엔 ✓):
+📱 를 누르면 설치된 iOS 시뮬레이터가 버전별로 묶여 나온다 (켜져 있는 기기엔 ✓).
+고르면 그 자리에서 부팅까지 해준다 — 따로 시뮬레이터 앱을 찾아 켤 필요 없다:
 
-<img src="docs/joystick-devices.png" width="380" alt="시뮬레이터 선택 — iOS 런타임별 그룹">
+<img src="docs/joystick-devices.png" width="380" alt="시뮬레이터 선택 — iOS 버전별 그룹">
 
-프로젝트 루트에 `.env.local`(`KEY=VALUE`) 이 있으면 `--dart-define` 으로 자동 주입한다.
-
-## 왜 만들었나
-
-브라우저 기반 Flutter DevTools 는 WebSocket 이 idle/throttling 으로 자주 끊겨서,
-Hot Reload 한 번 누르려고 패널을 다시 로드하는 게 번거로웠다. Joystick 은
-`openpty` 로 `flutter run` 을 자식 프로세스로 직접 띄우고 stdin 에 `r`/`R`/`q` 를
-보낸다 — 네트워크 계층이 없으니 끊길 일이 없다.
+프로젝트 루트에 `.env.local`(`KEY=VALUE`) 이 있으면 자동으로 앱에 넣어준다.
 
 ## 특징
 
-- 단일 파일 (`control_panel.swift`, Cocoa/AppKit) — 외부 의존성 0
-- 환경 자동 적응 — flutter 경로 · 기본 프로젝트 · 시뮬레이터 전부 런타임 탐색
-- 빌드된 앱이 아니라 소스를 배포 → Gatekeeper 경고 없음
+- 작은 창 하나로 끝 — 시뮬레이터 켜기·실행·Hot Reload 전부 여기서
+- **IDE·Xcode·터미널 따로 켤 필요 없음**
+- 켜면 최근 만진 Flutter 프로젝트를 알아서 골라줌
+- flutter 경로도 알아서 찾음 (설치만 돼 있으면 됨)
+- 파일 하나로 끝, 외부 라이브러리 0
 
-iOS 시뮬레이터 전용. macOS only.
+iOS 시뮬레이터 전용 · macOS 전용
