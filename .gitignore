@@ -1,0 +1,9 @@
+# 빌드 산출물 — build.sh 가 생성한다. 소스를 배포하고 받는 쪽이 직접 빌드한다.
+Joystick.app/
+
+# macOS
+.DS_Store
+
+# Swift 컴파일 부산물
+*.o
+*.swiftmodule
