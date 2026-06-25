@@ -307,6 +307,22 @@ final class FlippedView: NSView {
     override var isFlipped: Bool { true }
 }
 
+// MARK: - Log text view
+
+/// 로그용 NSTextView. 기본 우클릭 메뉴(복사 등) 끝에 "로그 지우기" 를 더한다.
+final class LogTextView: NSTextView {
+    var onClear: (() -> Void)?
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let menu = super.menu(for: event) ?? NSMenu()
+        menu.addItem(.separator())
+        let item = NSMenuItem(title: "로그 지우기", action: #selector(clearLog), keyEquivalent: "")
+        item.target = self
+        menu.addItem(item)
+        return menu
+    }
+    @objc private func clearLog() { onClear?() }
+}
+
 // MARK: - Window
 
 final class PanelController: NSObject, NSWindowDelegate {
@@ -319,7 +335,7 @@ final class PanelController: NSObject, NSWindowDelegate {
     let restartButton: HoverIconButton
     let toggleLogButton: HoverIconButton
     let logScrollView: NSScrollView
-    let logTextView: NSTextView
+    let logTextView: LogTextView
     var currentDeviceId: String = DEFAULT_DEVICE_ID
     var currentDeviceName: String = "iPhone 16 Pro"
     var currentProjectPath: String = ""   // 시작 시 자동 선택, 또는 📦 로 선택
@@ -375,29 +391,35 @@ final class PanelController: NSObject, NSWindowDelegate {
 
         runButton = Self.makeIconButton(symbol: "play.fill", color: NSColor.systemGreen)
         runButton.frame = NSRect(x: bx(2), y: 8, width: bw, height: bh)
+        runButton.toolTip = "실행 (Run)"
         content.addSubview(runButton)
 
         stopButton = Self.makeIconButton(symbol: "stop.fill", color: NSColor.systemRed)
         stopButton.frame = NSRect(x: bx(3), y: 8, width: bw, height: bh)
+        stopButton.toolTip = "정지 (Stop)"
         stopButton.isEnabled = false
         content.addSubview(stopButton)
 
         reloadButton = Self.makeIconButton(symbol: "bolt.fill", color: NSColor.systemBlue)
         reloadButton.frame = NSRect(x: bx(4), y: 8, width: bw, height: bh)
+        reloadButton.toolTip = "Hot Reload"
         reloadButton.isEnabled = false
         content.addSubview(reloadButton)
 
         restartButton = Self.makeIconButton(symbol: "arrow.triangle.2.circlepath", color: NSColor.systemPurple)
         restartButton.frame = NSRect(x: bx(5), y: 8, width: bw, height: bh)
+        restartButton.toolTip = "Hot Restart"
         restartButton.isEnabled = false
         content.addSubview(restartButton)
 
         toggleLogButton = Self.makeIconButton(symbol: "list.bullet.rectangle", color: NSColor.secondaryLabelColor)
         toggleLogButton.frame = NSRect(x: bx(6), y: 8, width: bw, height: bh)
+        toggleLogButton.toolTip = "로그 보기"
         content.addSubview(toggleLogButton)
 
         let quitButton = Self.makeIconButton(symbol: "xmark", color: NSColor.tertiaryLabelColor)
         quitButton.frame = NSRect(x: bx(7), y: 8, width: bw, height: bh)
+        quitButton.toolTip = "종료"
         content.addSubview(quitButton)
 
         // 툴바 ↔ 로그 사이 미세 separator
@@ -414,7 +436,7 @@ final class PanelController: NSObject, NSWindowDelegate {
         logScrollView.borderType = .noBorder
         logScrollView.drawsBackground = true
         logScrollView.backgroundColor = NSColor(white: 0.98, alpha: 1)
-        logTextView = NSTextView(frame: NSRect(origin: .zero, size: logFrame.size))
+        logTextView = LogTextView(frame: NSRect(origin: .zero, size: logFrame.size))
         logTextView.isEditable = false
         logTextView.isSelectable = true
         logTextView.font = NSFont.monospacedSystemFont(ofSize: 10, weight: .regular)
@@ -435,6 +457,11 @@ final class PanelController: NSObject, NSWindowDelegate {
 
         super.init()
         window.delegate = self
+
+        // 로그 우클릭 → "로그 지우기"
+        logTextView.onClear = { [weak self] in
+            self?.logTextView.string = ""
+        }
 
         projectButton.target = self
         projectButton.action = #selector(onProject(_:))
@@ -897,8 +924,35 @@ final class PanelController: NSObject, NSWindowDelegate {
 
 // MARK: - Bootstrap
 
+// Cmd+C(복사)·Cmd+A(전체선택) 같은 표준 단축키는 메인 메뉴의 Edit 항목에 키
+// 등가물이 등록돼 있어야 작동한다. 메뉴가 없으면 NSTextView 가 copy: 를 구현해도
+// 키 입력이 액션으로 라우팅되지 않아 Cmd+C 가 먹히지 않는다 — 그래서 명시적으로
+// App·Edit 메뉴를 만들어 붙인다.
+func makeMainMenu() -> NSMenu {
+    let mainMenu = NSMenu()
+
+    let appItem = NSMenuItem()
+    mainMenu.addItem(appItem)
+    let appMenu = NSMenu()
+    appMenu.addItem(withTitle: "Joystick 종료",
+                    action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+    appItem.submenu = appMenu
+
+    let editItem = NSMenuItem()
+    mainMenu.addItem(editItem)
+    let editMenu = NSMenu(title: "편집")
+    editMenu.addItem(withTitle: "복사",
+                     action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+    editMenu.addItem(withTitle: "전체 선택",
+                     action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+    editItem.submenu = editMenu
+
+    return mainMenu
+}
+
 let app = NSApplication.shared
 app.setActivationPolicy(.regular)
+app.mainMenu = makeMainMenu()
 let controller = PanelController()
 app.activate(ignoringOtherApps: true)
 controller.show()
