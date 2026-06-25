@@ -3,12 +3,10 @@
 Flutter 의 **Hot Reload / Hot Restart 를 버튼으로 누르는** macOS 미니 컨트롤 패널.
 브라우저 DevTools 의 WebSocket 끊김에 지친 사람을 위한 PTY 기반 대체품.
 
-한 줄짜리 슬림 윈도우, 항상 위에 떠 있음:
+![Joystick](docs/joystick.png)
 
-```
-📦  📱  ▶  ■  ⚡  ↻  ☰  ✕
-프로젝트 시뮬 Run Stop Reload Restart 로그 종료
-```
+한 줄짜리 슬림 윈도우, 항상 위에 떠 있음. 버튼은 좌→우:
+📦 프로젝트 · 📱 시뮬레이터 · ▶ Run · ■ Stop · ⚡ Hot Reload · ↻ Hot Restart · ☰ 로그 · ✕ 종료
 
 ## 설치
 
@@ -39,6 +37,10 @@ open Joystick.app
 2. 📱 iOS 시뮬레이터 고르기 → 부팅됨
 3. ▶ Run → 빌드 후 실행
 4. 코드 고치고 ⚡ Hot Reload (또는 ↻ Hot Restart)
+
+📱 를 누르면 설치된 iOS 시뮬레이터가 런타임별로 묶여 나온다 (부팅된 기기엔 ✓):
+
+<img src="docs/joystick-devices.png" width="380" alt="시뮬레이터 선택 — iOS 런타임별 그룹">
 
 프로젝트 루트에 `.env.local`(`KEY=VALUE`) 이 있으면 `--dart-define` 으로 자동 주입한다.
 
